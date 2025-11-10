@@ -1,0 +1,76 @@
+/*
+Kickstarter Projects Analysis
+Author: Lamia Ghozy
+Description: This SQL file contains queries used to analyze Kickstarter project data to identify patterns of success and failure.
+             Queries are organized step-by-step with explanations for each stage of the analysis.
+*/
+
+/* --------------------------------------------------------------
+1. Explore the table schema to understand data types and columns
+-------------------------------------------------------------- */
+PRAGMA table_info(ksprojects);
+
+/* --------------------------------------------------------------
+2. Initial selection of relevant columns
+   Purpose: Examine first 10 rows to understand the data
+-------------------------------------------------------------- */
+SELECT main_category, goal, backers, pledged
+FROM ksprojects
+LIMIT 10;
+
+/* --------------------------------------------------------------
+3. Filter projects by state to focus on failed campaigns
+   Purpose: Identify projects that did not succeed (failed, canceled, suspended)
+-------------------------------------------------------------- */
+SELECT main_category, goal, backers, pledged
+FROM ksprojects
+WHERE state IN ('failed', 'canceled', 'suspended')
+LIMIT 10;
+
+/* --------------------------------------------------------------
+4. Filter by quantitative thresholds
+   Purpose: Focus on projects with at least 100 backers and pledged >= 20,000
+-------------------------------------------------------------- */
+SELECT main_category, backers, pledged, goal
+FROM ksprojects
+WHERE backers >= 100 AND pledged >= 20000 AND state IN ('failed', 'canceled', 'suspended')
+LIMIT 10;
+
+/* --------------------------------------------------------------
+5. Order results and calculate percentage of goal funded
+   Purpose: Examine which failed projects got close to their goal
+-------------------------------------------------------------- */
+SELECT main_category, backers, pledged, goal, pledged/goal AS pct_pledged
+FROM ksprojects
+WHERE state = 'failed'
+  AND backers >= 100 AND pledged >= 20000
+ORDER BY main_category ASC, pct_pledged DESC
+LIMIT 10;
+
+/* --------------------------------------------------------------
+6. Apply conditional logic using CASE to categorize funding status
+   Purpose: Categorize projects as Fully funded, Nearly funded, or Not nearly funded
+-------------------------------------------------------------- */
+SELECT main_category, backers, pledged, goal,
+       pledged / goal AS pct_pledged,
+       CASE
+           WHEN pledged / goal >= 1 THEN 'Fully funded'
+           WHEN pledged / goal BETWEEN 0.75 AND 1 THEN 'Nearly funded'
+           WHEN pledged / goal < 0.75 THEN 'Not nearly funded'
+       END AS funding_status
+FROM ksprojects
+WHERE state = 'failed'
+  AND backers >= 100 AND pledged >= 20000
+ORDER BY main_category ASC, pct_pledged DESC
+LIMIT 10;
+/* Observation: Most failed projects are failing due to insufficient funding, not because of a lack of backers. */
+
+/* --------------------------------------------------------------
+7. Explore an interesting subset of successful projects
+   Example: Food category projects that were successful
+-------------------------------------------------------------- */
+SELECT *
+FROM ksprojects
+WHERE main_category = 'Food' AND state = 'successful'
+LIMIT 10;
+/* Observation: Successful projects in the Food category demonstrate that some categories consistently meet their goals. */
