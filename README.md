@@ -52,4 +52,4 @@ This project explores Kickstarter campaign data to identify patterns in project 
 #SQL #DataAnalysis #Kickstarter #BusinessIntelligence`
 
 
-If you want, I can also draft a **short business report version**, like we did for the scale model cars project, that turns these findings into a polished narrative for recruiters and hiring managers. That would make it look extremely professional on GitHub and LinkedIn. Do you want me to do that next?
+
